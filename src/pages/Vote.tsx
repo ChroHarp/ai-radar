@@ -3,12 +3,12 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 
 const USAGE_OPTIONS = [
-  { level: 1, code: 'L1', label: '不用', sub: 'Non-User' },
-  { level: 2, code: 'L2', label: '聊天', sub: 'Casual' },
-  { level: 3, code: 'L3', label: '創作', sub: 'Creator' },
-  { level: 4, code: 'L4', label: '整合', sub: 'Integrator' },
-  { level: 5, code: 'L5', label: '代理', sub: 'MCP/Agents' },
-  { level: 6, code: 'L6', label: '架構師', sub: 'Orchestrator' },
+  { level: 1, code: 'L1', label: '完全不用', sub: '沒有固定使用習慣' },
+  { level: 2, code: 'L2', label: '聊天問答', sub: 'ChatGPT / Claude 問問題、寫東西' },
+  { level: 3, code: 'L3', label: '生圖／生影片', sub: 'Midjourney、Sora、ComfyUI' },
+  { level: 4, code: 'L4', label: '串接 API／寫 Prompt', sub: '自己打 API、系統提示詞工程' },
+  { level: 5, code: 'L5', label: '用 MCP／工具調用', sub: '讓 AI 操作外部工具（MCP Server、Function Calling）' },
+  { level: 6, code: 'L6', label: '編排 AI 代理團隊', sub: '用 LangGraph、CrewAI、AutoGen、Harness 等協調多個 Agent' },
 ]
 
 const EVAL_OPTIONS = [
@@ -58,16 +58,18 @@ export default function Vote() {
             <h1 className="text-2xl font-bold text-white">你的 AI 使用程度</h1>
             <p className="text-gray-400 text-sm mt-1">選一個最符合你現況的選項</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-3">
             {USAGE_OPTIONS.map((opt) => (
               <button
                 key={opt.level}
                 onClick={() => handleUsage(opt.level)}
-                className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 p-5 cursor-pointer"
+                className="flex items-center gap-4 rounded-2xl border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 px-6 py-4 cursor-pointer"
               >
-                <span className="text-cyan-400 font-mono text-lg font-bold">{opt.code}</span>
-                <span className="text-white text-base font-semibold">{opt.label}</span>
-                <span className="text-gray-400 text-xs">{opt.sub}</span>
+                <span className="text-cyan-400 font-mono text-lg font-bold w-8 shrink-0 text-center">{opt.code}</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-white text-base font-semibold">{opt.label}</span>
+                  <span className="text-gray-400 text-xs text-left">{opt.sub}</span>
+                </div>
               </button>
             ))}
           </div>

@@ -25,7 +25,14 @@ interface PlotPoint {
   id: string
 }
 
-const X_LABELS: Record<number, string> = { 1: 'L1 不用', 2: 'L2 聊天', 3: 'L3 創作', 4: 'L4 整合', 5: 'L5 代理', 6: 'L6 架構師' }
+const X_LABELS: Record<number, string> = { 
+  1: 'L1 完全不用', 
+  2: 'L2 聊天問答', 
+  3: 'L3 生圖／影', 
+  4: 'L4 串接 API', 
+  5: 'L5 工具調用', 
+  6: 'L6 代理編排' 
+}
 const Y_LABELS: Record<number, string> = { 1: 'S1 炫目垃圾', 2: 'S2 不可靠', 3: 'S3 稱職', 4: 'S4 副駕駛', 5: 'S5 全能' }
 
 function xTickFormatter(v: number) {
@@ -192,9 +199,10 @@ export default function Dashboard() {
 
       {/* Axis legend */}
       <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
-        <div>
-          <span className="text-cyan-700 font-bold mr-2">X 軸：</span>
-          L1 不用 → L2 聊天 → L3 創作 → L4 整合 → L5 代理 → L6 架構師
+        <div className="flex flex-col gap-1">
+          <p><span className="text-cyan-700 font-bold mr-2">X 軸 (使用程度)：</span></p>
+          <p>L1 完全不用 (沒有固定習慣) → L2 聊天問答 (ChatGPT / Claude) → L3 生圖／生影片 (Midjourney/Sora)</p>
+          <p>→ L4 串接 API (提示詞工程) → L5 用 MCP (工具調用) → L6 編排代理 (LangGraph/CrewAI)</p>
         </div>
         <div>
           <span className="text-cyan-700 font-bold mr-2">Y 軸：</span>
