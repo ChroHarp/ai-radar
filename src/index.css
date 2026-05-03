@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  #root {
+    width: 100%;
+    min-height: 100dvh;
+  }
+}
+
+@layer utilities {
+  .glow-cyan {
+    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.7));
+  }
+  .glow-dot {
+    filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.9));
+  }
+}
