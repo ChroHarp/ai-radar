@@ -50,12 +50,12 @@ export default function Vote() {
   }
 
   return (
-    <div className="min-h-dvh bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-dvh bg-gray-950 text-white flex flex-col items-center sm:justify-center px-3 py-5 sm:px-4 sm:py-8 overflow-x-hidden">
       {step === 1 && (
-        <div className="w-full max-w-sm flex flex-col gap-6">
+        <div className="w-full max-w-md flex flex-col gap-5 sm:gap-6">
           <div className="text-center">
             <p className="text-cyan-400 text-sm font-mono tracking-widest uppercase mb-2">Step 1 / 2</p>
-            <h1 className="text-2xl font-bold text-white">你的 AI 使用程度</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">你的 AI 使用程度</h1>
             <p className="text-gray-400 text-sm mt-1">選一個最符合你現況的選項</p>
           </div>
           <div className="flex flex-col gap-3">
@@ -63,12 +63,12 @@ export default function Vote() {
               <button
                 key={opt.level}
                 onClick={() => handleUsage(opt.level)}
-                className="flex items-center gap-4 rounded-2xl border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 px-6 py-4 cursor-pointer"
+                className="flex items-start gap-3 sm:gap-4 rounded-lg border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 px-4 sm:px-6 py-4 cursor-pointer w-full text-left"
               >
-                <span className="text-cyan-400 font-mono text-lg font-bold w-8 shrink-0 text-center">{opt.code}</span>
-                <div className="flex flex-col items-start">
+                <span className="text-cyan-400 font-mono text-base sm:text-lg font-bold w-8 shrink-0 text-center leading-6">{opt.code}</span>
+                <div className="flex min-w-0 flex-col items-start">
                   <span className="text-white text-base font-semibold">{opt.label}</span>
-                  <span className="text-gray-400 text-xs text-left">{opt.sub}</span>
+                  <span className="text-gray-400 text-xs text-left leading-relaxed break-words">{opt.sub}</span>
                 </div>
               </button>
             ))}
@@ -77,10 +77,10 @@ export default function Vote() {
       )}
 
       {step === 2 && (
-        <div className="w-full max-w-sm flex flex-col gap-6">
+        <div className="w-full max-w-md flex flex-col gap-5 sm:gap-6">
           <div className="text-center">
             <p className="text-cyan-400 text-sm font-mono tracking-widest uppercase mb-2">Step 2 / 2</p>
-            <h1 className="text-2xl font-bold text-white">你對 AI 能力的評價</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">你對 AI 能力的評價</h1>
             <p className="text-gray-400 text-sm mt-1">目前你認為 AI 是⋯</p>
           </div>
           <div className="flex flex-col gap-3">
@@ -89,12 +89,12 @@ export default function Vote() {
                 key={opt.level}
                 onClick={() => handleEval(opt.level)}
                 disabled={submitting}
-                className="flex items-center gap-4 rounded-2xl border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 px-6 py-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-start gap-3 sm:gap-4 rounded-lg border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 px-4 sm:px-6 py-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed w-full text-left"
               >
-                <span className="text-cyan-400 font-mono text-lg font-bold w-8 shrink-0 text-center">{opt.code}</span>
-                <div className="flex flex-col items-start">
+                <span className="text-cyan-400 font-mono text-base sm:text-lg font-bold w-8 shrink-0 text-center leading-6">{opt.code}</span>
+                <div className="flex min-w-0 flex-col items-start">
                   <span className="text-white text-base font-semibold">{opt.label}</span>
-                  <span className="text-gray-400 text-xs text-left">{opt.sub}</span>
+                  <span className="text-gray-400 text-xs text-left leading-relaxed break-words">{opt.sub}</span>
                 </div>
               </button>
             ))}
@@ -106,10 +106,10 @@ export default function Vote() {
       )}
 
       {step === 3 && (
-        <div className="flex flex-col items-center gap-6 text-center px-4">
+        <div className="flex flex-col items-center justify-center min-h-[70dvh] gap-5 sm:gap-6 text-center px-4">
           <div className="text-6xl animate-bounce">✅</div>
-          <h1 className="text-3xl font-bold text-cyan-400">感謝投票！</h1>
-          <p className="text-xl text-white">請抬頭看大螢幕 👀</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-cyan-400">感謝投票！</h1>
+          <p className="text-lg sm:text-xl text-white">請抬頭看大螢幕 👀</p>
           <p className="text-gray-500 text-sm mt-4">你的資料已即時更新到圖表上</p>
         </div>
       )}
