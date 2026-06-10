@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -29,7 +29,7 @@ const X_LABELS: Record<number, string> = {
   1: 'L1 完全不用', 
   2: 'L2 聊天問答', 
   3: 'L3 生圖／影', 
-  4: 'L4 串接 API', 
+  4: 'L4 API／Agent', 
   5: 'L5 工具調用', 
   6: 'L6 代理編排' 
 }
@@ -43,6 +43,23 @@ function xTickFormatter(v: number) {
 function yTickFormatter(v: number) {
   const rounded = Math.round(v)
   return Y_LABELS[rounded] ?? ''
+}
+
+function stableUnit(id: string, salt: string) {
+  let hash = 2166136261
+  const input = `${salt}:${id}`
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return (hash >>> 0) / 4294967295
+}
+
+function getStableJitter(id: string) {
+  return {
+    jx: (stableUnit(id, 'x') - 0.5) * 0.32,
+    jy: (stableUnit(id, 'y') - 0.5) * 0.32,
+  }
 }
 
 // Custom dot with glow effect — opacity scales with density approximation
@@ -64,7 +81,6 @@ function GlowDot(props: { cx?: number; cy?: number; payload?: PlotPoint }) {
 export default function Dashboard() {
   const [points, setPoints] = useState<PlotPoint[]>([])
   const [isCompact, setIsCompact] = useState(false)
-  const jitterRef = useRef<Record<string, { jx: number; jy: number }>>({})
 
   const voteUrl = `${window.location.origin}/vote`
 
@@ -83,14 +99,7 @@ export default function Dashboard() {
         snapshot.docs.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
           const data = doc.data() as VoteDoc
           const id = doc.id
-          // Compute jitter once per doc ID, then reuse — prevents jumping on re-render
-          if (!jitterRef.current[id]) {
-            jitterRef.current[id] = {
-              jx: (Math.random() - 0.5) * 0.3,
-              jy: (Math.random() - 0.5) * 0.3,
-            }
-          }
-          const { jx, jy } = jitterRef.current[id]
+          const { jx, jy } = getStableJitter(id)
           newPoints.push({
             id,
             x: data.usage_level + jx,
@@ -132,23 +141,23 @@ export default function Dashboard() {
         <div className="flex-1 bg-gray-900/60 border border-cyan-900/50 rounded-lg p-2 sm:p-4 min-w-0">
           <div style={{ height: 'clamp(360px, 62dvh, 560px)' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 20, right: 10, bottom: 68, left: isCompact ? 0 : 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(34,211,238,0.1)" />
+              <ScatterChart margin={{ top: 18, right: 14, bottom: isCompact ? 74 : 82, left: isCompact ? 6 : 18 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(34,211,238,0.16)" />
               <XAxis
                 type="number"
                 dataKey="x"
                 domain={[0.5, 6.5]}
                 ticks={[1, 2, 3, 4, 5, 6]}
                 tickFormatter={(value) => isCompact ? `L${Math.round(value)}` : xTickFormatter(value)}
-                tick={{ fill: '#67e8f9', fontSize: isCompact ? 9 : 10 }}
-                stroke="rgba(34,211,238,0.3)"
+                tick={{ fill: '#dffbff', fontSize: isCompact ? 12 : 13, fontWeight: 700, stroke: '#020617', strokeWidth: 3, paintOrder: 'stroke' }}
+                stroke="rgba(103,232,249,0.65)"
                 interval={0}
               >
                 <Label
-                  value="AI 使用程度"
+                  value="X 軸：AI 使用方式成熟度"
                   position="insideBottom"
-                  offset={-40}
-                  style={{ fill: '#22d3ee', fontSize: 12, fontFamily: 'monospace' }}
+                  offset={isCompact ? -44 : -50}
+                  style={{ fill: '#dffbff', fontSize: isCompact ? 13 : 15, fontWeight: 700, fontFamily: 'monospace' }}
                 />
               </XAxis>
               <YAxis
@@ -157,16 +166,16 @@ export default function Dashboard() {
                 domain={[0.5, 5.5]}
                 ticks={[1, 2, 3, 4, 5]}
                 tickFormatter={(value) => isCompact ? `S${Math.round(value)}` : yTickFormatter(value)}
-                tick={{ fill: '#67e8f9', fontSize: isCompact ? 9 : 10 }}
-                stroke="rgba(34,211,238,0.3)"
-                width={isCompact ? 42 : 78}
+                tick={{ fill: '#dffbff', fontSize: isCompact ? 12 : 13, fontWeight: 700, stroke: '#020617', strokeWidth: 3, paintOrder: 'stroke' }}
+                stroke="rgba(103,232,249,0.65)"
+                width={isCompact ? 46 : 96}
               >
                 <Label
-                  value="AI 能力評價"
+                  value="Y 軸：AI 能力信任度"
                   angle={-90}
                   position="insideLeft"
-                  offset={isCompact ? -26 : -46}
-                  style={{ fill: '#22d3ee', fontSize: 12, fontFamily: 'monospace' }}
+                  offset={isCompact ? -30 : -58}
+                  style={{ fill: '#dffbff', fontSize: isCompact ? 13 : 15, fontWeight: 700, fontFamily: 'monospace' }}
                 />
               </YAxis>
               <Tooltip
@@ -212,7 +221,7 @@ export default function Dashboard() {
         <div className="flex flex-col gap-1">
           <p><span className="text-cyan-700 font-bold mr-2">X 軸 (使用程度)：</span></p>
           <p>L1 完全不用 (沒有固定習慣) → L2 聊天問答 (ChatGPT / Claude) → L3 生圖／生影片 (Midjourney/Sora)</p>
-          <p>→ L4 串接 API (提示詞工程) → L5 用 MCP (工具調用) → L6 編排代理 (LangGraph/CrewAI)</p>
+          <p>→ L4 API／Agent 工具 (Antigravity、Codex、Cursor、Claude Code) → L5 用 MCP (工具調用) → L6 編排代理 (LangGraph/CrewAI)</p>
         </div>
         <div className="flex flex-col gap-1">
           <p><span className="text-cyan-700 font-bold mr-2">Y 軸 (能力評價)：</span></p>

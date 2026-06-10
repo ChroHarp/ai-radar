@@ -6,7 +6,7 @@ const USAGE_OPTIONS = [
   { level: 1, code: 'L1', label: '完全不用', sub: '沒有固定使用習慣' },
   { level: 2, code: 'L2', label: '聊天問答', sub: 'ChatGPT / Claude 問問題、寫東西' },
   { level: 3, code: 'L3', label: '生圖／生影片', sub: 'Midjourney、Sora、ComfyUI' },
-  { level: 4, code: 'L4', label: '串接 API／寫 Prompt', sub: '自己打 API、系統提示詞工程' },
+  { level: 4, code: 'L4', label: 'API／Agent 工具', sub: '使用 API、Antigravity、Codex、Cursor、Claude Code 等把 AI 接進工作流程' },
   { level: 5, code: 'L5', label: '用 MCP／工具調用', sub: '讓 AI 操作外部工具（MCP Server、Function Calling）' },
   { level: 6, code: 'L6', label: '編排 AI 代理團隊', sub: '用 LangGraph、CrewAI、AutoGen、Harness 等協調多個 Agent' },
 ]
@@ -50,25 +50,25 @@ export default function Vote() {
   }
 
   return (
-    <div className="min-h-dvh bg-gray-950 text-white flex flex-col items-center sm:justify-center px-3 py-5 sm:px-4 sm:py-8 overflow-x-hidden">
+    <div className="min-h-dvh bg-slate-50 text-slate-950 flex flex-col items-center px-4 py-6 sm:px-6 sm:py-10 overflow-x-hidden">
       {step === 1 && (
-        <div className="w-full max-w-md flex flex-col gap-5 sm:gap-6">
+        <div className="w-full max-w-2xl flex flex-col gap-6">
           <div className="text-center">
-            <p className="text-cyan-400 text-sm font-mono tracking-widest uppercase mb-2">Step 1 / 2</p>
-            <h1 className="text-xl sm:text-2xl font-bold text-white">你的 AI 使用程度</h1>
-            <p className="text-gray-400 text-sm mt-1">選一個最符合你現況的選項</p>
+            <p className="text-cyan-700 text-base font-mono tracking-widest uppercase mb-3">Step 1 / 2</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-950">你的 AI 使用程度</h1>
+            <p className="text-slate-600 text-lg mt-3">選一個最符合你現況的選項</p>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {USAGE_OPTIONS.map((opt) => (
               <button
                 key={opt.level}
                 onClick={() => handleUsage(opt.level)}
-                className="flex items-start gap-3 sm:gap-4 rounded-lg border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 px-4 sm:px-6 py-4 cursor-pointer w-full text-left"
+                className="flex items-start gap-4 rounded-lg border border-slate-200 bg-white hover:bg-cyan-50 hover:border-cyan-500 active:scale-[0.99] transition-all duration-150 px-4 sm:px-6 py-5 cursor-pointer w-full text-left shadow-sm"
               >
-                <span className="text-cyan-400 font-mono text-base sm:text-lg font-bold w-8 shrink-0 text-center leading-6">{opt.code}</span>
+                <span className="bg-cyan-100 text-cyan-800 rounded-md font-mono text-lg sm:text-xl font-bold w-12 shrink-0 text-center leading-9">{opt.code}</span>
                 <div className="flex min-w-0 flex-col items-start">
-                  <span className="text-white text-base font-semibold">{opt.label}</span>
-                  <span className="text-gray-400 text-xs text-left leading-relaxed break-words">{opt.sub}</span>
+                  <span className="text-slate-950 text-xl sm:text-2xl font-bold leading-snug">{opt.label}</span>
+                  <span className="text-slate-600 text-base sm:text-lg text-left leading-relaxed break-words mt-1">{opt.sub}</span>
                 </div>
               </button>
             ))}
@@ -77,30 +77,30 @@ export default function Vote() {
       )}
 
       {step === 2 && (
-        <div className="w-full max-w-md flex flex-col gap-5 sm:gap-6">
+        <div className="w-full max-w-2xl flex flex-col gap-6">
           <div className="text-center">
-            <p className="text-cyan-400 text-sm font-mono tracking-widest uppercase mb-2">Step 2 / 2</p>
-            <h1 className="text-xl sm:text-2xl font-bold text-white">你對 AI 能力的評價</h1>
-            <p className="text-gray-400 text-sm mt-1">目前你認為 AI 是⋯</p>
+            <p className="text-cyan-700 text-base font-mono tracking-widest uppercase mb-3">Step 2 / 2</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-950">你對 AI 能力的評價</h1>
+            <p className="text-slate-600 text-lg mt-3">目前你認為 AI 是...</p>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {EVAL_OPTIONS.map((opt) => (
               <button
                 key={opt.level}
                 onClick={() => handleEval(opt.level)}
                 disabled={submitting}
-                className="flex items-start gap-3 sm:gap-4 rounded-lg border border-cyan-800 bg-gray-900 hover:bg-cyan-900/40 hover:border-cyan-400 active:scale-95 transition-all duration-150 px-4 sm:px-6 py-4 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed w-full text-left"
+                className="flex items-start gap-4 rounded-lg border border-slate-200 bg-white hover:bg-cyan-50 hover:border-cyan-500 active:scale-[0.99] transition-all duration-150 px-4 sm:px-6 py-5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed w-full text-left shadow-sm"
               >
-                <span className="text-cyan-400 font-mono text-base sm:text-lg font-bold w-8 shrink-0 text-center leading-6">{opt.code}</span>
+                <span className="bg-cyan-100 text-cyan-800 rounded-md font-mono text-lg sm:text-xl font-bold w-12 shrink-0 text-center leading-9">{opt.code}</span>
                 <div className="flex min-w-0 flex-col items-start">
-                  <span className="text-white text-base font-semibold">{opt.label}</span>
-                  <span className="text-gray-400 text-xs text-left leading-relaxed break-words">{opt.sub}</span>
+                  <span className="text-slate-950 text-xl sm:text-2xl font-bold leading-snug">{opt.label}</span>
+                  <span className="text-slate-600 text-base sm:text-lg text-left leading-relaxed break-words mt-1">{opt.sub}</span>
                 </div>
               </button>
             ))}
           </div>
           {error && (
-            <p className="text-red-400 text-center text-sm">{error}</p>
+            <p className="text-red-600 text-center text-base font-medium">{error}</p>
           )}
         </div>
       )}
@@ -108,9 +108,9 @@ export default function Vote() {
       {step === 3 && (
         <div className="flex flex-col items-center justify-center min-h-[70dvh] gap-5 sm:gap-6 text-center px-4">
           <div className="text-6xl animate-bounce">✅</div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-cyan-400">感謝投票！</h1>
-          <p className="text-lg sm:text-xl text-white">請抬頭看大螢幕 👀</p>
-          <p className="text-gray-500 text-sm mt-4">你的資料已即時更新到圖表上</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-cyan-700">感謝投票！</h1>
+          <p className="text-xl sm:text-2xl text-slate-950 font-semibold">請抬頭看大螢幕 👀</p>
+          <p className="text-slate-600 text-base sm:text-lg mt-2">你的資料已即時更新到圖表上</p>
         </div>
       )}
     </div>
