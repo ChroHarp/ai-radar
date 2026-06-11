@@ -64,17 +64,35 @@ function getStableJitter(id: string) {
 
 // Custom dot with glow effect — opacity scales with density approximation
 function GlowDot(props: { cx?: number; cy?: number; payload?: PlotPoint }) {
-  const { cx = 0, cy = 0 } = props
+  const { cx = 0, cy = 0, payload } = props
+  const id = payload?.id ?? 'preview'
+  const dx = (stableUnit(id, 'move-x') - 0.5) * 8
+  const dy = (stableUnit(id, 'move-y') - 0.5) * 8
+  const duration = 2.8 + stableUnit(id, 'move-speed') * 1.8
+  const delay = -stableUnit(id, 'move-delay') * duration
+
   return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r={7}
-      fill="rgba(34,211,238,0.55)"
-      stroke="rgba(34,211,238,0.9)"
-      strokeWidth={1.5}
-      style={{ filter: 'drop-shadow(0 0 7px rgba(34,211,238,0.85))' }}
-    />
+    <g transform={`translate(${cx} ${cy})`} style={{ filter: 'drop-shadow(0 0 8px rgba(34,211,238,0.9))' }}>
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        additive="sum"
+        values={`0 0; ${dx.toFixed(2)} ${dy.toFixed(2)}; 0 0; ${(-dx).toFixed(2)} ${(dy * 0.7).toFixed(2)}; 0 0`}
+        dur={`${duration.toFixed(2)}s`}
+        begin={`${delay.toFixed(2)}s`}
+        repeatCount="indefinite"
+      />
+      <circle r={15} fill="rgba(34,211,238,0.16)">
+        <animate attributeName="r" values="11;18;11" dur={`${duration.toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.35;0.95;0.35" dur={`${duration.toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} repeatCount="indefinite" />
+      </circle>
+      <circle
+        r={7}
+        fill="rgba(34,211,238,0.62)"
+        stroke="rgba(207,250,254,0.95)"
+        strokeWidth={1.5}
+      />
+    </g>
   )
 }
 
