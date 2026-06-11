@@ -62,14 +62,16 @@ function getStableJitter(id: string) {
   }
 }
 
-// Custom dot with glow effect — opacity scales with density approximation
+// Custom dot with one-time fly-in effect when the point appears.
 function GlowDot(props: { cx?: number; cy?: number; payload?: PlotPoint }) {
   const { cx = 0, cy = 0, payload } = props
   const id = payload?.id ?? 'preview'
-  const dx = (stableUnit(id, 'move-x') - 0.5) * 8
-  const dy = (stableUnit(id, 'move-y') - 0.5) * 8
-  const duration = 2.8 + stableUnit(id, 'move-speed') * 1.8
-  const delay = -stableUnit(id, 'move-delay') * duration
+  const angle = stableUnit(id, 'entry-angle') * Math.PI * 2
+  const distance = 70 + stableUnit(id, 'entry-distance') * 80
+  const fromX = Math.cos(angle) * distance
+  const fromY = Math.sin(angle) * distance
+  const duration = 0.65 + stableUnit(id, 'entry-speed') * 0.35
+  const delay = stableUnit(id, 'entry-delay') * 0.22
 
   return (
     <g transform={`translate(${cx} ${cy})`} style={{ filter: 'drop-shadow(0 0 8px rgba(34,211,238,0.9))' }}>
@@ -77,14 +79,24 @@ function GlowDot(props: { cx?: number; cy?: number; payload?: PlotPoint }) {
         attributeName="transform"
         type="translate"
         additive="sum"
-        values={`0 0; ${dx.toFixed(2)} ${dy.toFixed(2)}; 0 0; ${(-dx).toFixed(2)} ${(dy * 0.7).toFixed(2)}; 0 0`}
+        values={`${fromX.toFixed(2)} ${fromY.toFixed(2)}; 0 0`}
         dur={`${duration.toFixed(2)}s`}
         begin={`${delay.toFixed(2)}s`}
-        repeatCount="indefinite"
+        calcMode="spline"
+        keySplines="0.16 1 0.3 1"
+        fill="freeze"
       />
-      <circle r={15} fill="rgba(34,211,238,0.16)">
-        <animate attributeName="r" values="11;18;11" dur={`${duration.toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.35;0.95;0.35" dur={`${duration.toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} repeatCount="indefinite" />
+      <animate
+        attributeName="opacity"
+        values="0;1;1"
+        keyTimes="0;0.72;1"
+        dur={`${duration.toFixed(2)}s`}
+        begin={`${delay.toFixed(2)}s`}
+        fill="freeze"
+      />
+      <circle r={16} fill="rgba(34,211,238,0.18)">
+        <animate attributeName="r" values="26;16;18;16" dur={`${(duration + 0.2).toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} fill="freeze" />
+        <animate attributeName="opacity" values="0;0.9;0.28;0.42" dur={`${(duration + 0.2).toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} fill="freeze" />
       </circle>
       <circle
         r={7}
