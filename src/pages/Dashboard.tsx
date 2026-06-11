@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { type CSSProperties, useEffect, useState } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -67,43 +67,29 @@ function GlowDot(props: { cx?: number; cy?: number; payload?: PlotPoint }) {
   const { cx = 0, cy = 0, payload } = props
   const id = payload?.id ?? 'preview'
   const angle = stableUnit(id, 'entry-angle') * Math.PI * 2
-  const distance = 70 + stableUnit(id, 'entry-distance') * 80
+  const distance = 80 + stableUnit(id, 'entry-distance') * 70
   const fromX = Math.cos(angle) * distance
   const fromY = Math.sin(angle) * distance
-  const duration = 0.65 + stableUnit(id, 'entry-speed') * 0.35
-  const delay = stableUnit(id, 'entry-delay') * 0.22
+  const duration = 1.25 + stableUnit(id, 'entry-speed') * 0.45
+  const delay = stableUnit(id, 'entry-delay') * 0.18
+  const entryStyle = {
+    '--dot-from-x': `${fromX.toFixed(2)}px`,
+    '--dot-from-y': `${fromY.toFixed(2)}px`,
+    '--dot-duration': `${duration.toFixed(2)}s`,
+    '--dot-delay': `${delay.toFixed(2)}s`,
+  } as CSSProperties
 
   return (
     <g transform={`translate(${cx} ${cy})`} style={{ filter: 'drop-shadow(0 0 8px rgba(34,211,238,0.9))' }}>
-      <animateTransform
-        attributeName="transform"
-        type="translate"
-        additive="sum"
-        values={`${fromX.toFixed(2)} ${fromY.toFixed(2)}; 0 0`}
-        dur={`${duration.toFixed(2)}s`}
-        begin={`${delay.toFixed(2)}s`}
-        calcMode="spline"
-        keySplines="0.16 1 0.3 1"
-        fill="freeze"
-      />
-      <animate
-        attributeName="opacity"
-        values="0;1;1"
-        keyTimes="0;0.72;1"
-        dur={`${duration.toFixed(2)}s`}
-        begin={`${delay.toFixed(2)}s`}
-        fill="freeze"
-      />
-      <circle r={16} fill="rgba(34,211,238,0.18)">
-        <animate attributeName="r" values="26;16;18;16" dur={`${(duration + 0.2).toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} fill="freeze" />
-        <animate attributeName="opacity" values="0;0.9;0.28;0.42" dur={`${(duration + 0.2).toFixed(2)}s`} begin={`${delay.toFixed(2)}s`} fill="freeze" />
-      </circle>
-      <circle
-        r={7}
-        fill="rgba(34,211,238,0.62)"
-        stroke="rgba(207,250,254,0.95)"
-        strokeWidth={1.5}
-      />
+      <g className="radar-dot-enter" style={entryStyle}>
+        <circle className="radar-dot-halo" r={16} fill="rgba(34,211,238,0.18)" />
+        <circle
+          r={7}
+          fill="rgba(34,211,238,0.62)"
+          stroke="rgba(207,250,254,0.95)"
+          strokeWidth={1.5}
+        />
+      </g>
     </g>
   )
 }
@@ -111,6 +97,7 @@ function GlowDot(props: { cx?: number; cy?: number; payload?: PlotPoint }) {
 export default function Dashboard() {
   const [points, setPoints] = useState<PlotPoint[]>([])
   const [isCompact, setIsCompact] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   const voteUrl = `${window.location.origin}/vote`
 
@@ -137,9 +124,11 @@ export default function Dashboard() {
           })
         })
         setPoints(newPoints)
+        setHasLoaded(true)
       },
       (err) => {
         console.error('Firestore listen error:', err)
+        setHasLoaded(true)
       }
     )
     return () => unsub()
@@ -170,7 +159,8 @@ export default function Dashboard() {
         {/* Chart */}
         <div className="flex-1 bg-gray-900/60 border border-cyan-900/50 rounded-lg p-2 sm:p-4 min-w-0">
           <div style={{ height: 'clamp(360px, 62dvh, 560px)' }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <div className="relative h-full">
+              <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ top: 18, right: 14, bottom: isCompact ? 74 : 82, left: isCompact ? 6 : 18 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(34,211,238,0.16)" />
               <XAxis
@@ -215,11 +205,23 @@ export default function Dashboard() {
               <Scatter
                 data={points}
                 shape={<GlowDot />}
-                isAnimationActive={true}
-                animationDuration={400}
+                isAnimationActive={false}
               />
               </ScatterChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+              {(!hasLoaded || points.length === 0) && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-center">
+                  <div className="rounded-lg border border-cyan-900/50 bg-gray-950/80 px-5 py-4 text-cyan-100 shadow-[0_0_24px_rgba(34,211,238,0.18)]">
+                    <p className="text-sm sm:text-base font-bold tracking-wider">
+                      {hasLoaded ? '等待第一筆投票' : '載入投票資料'}
+                    </p>
+                    <p className="mt-1 text-xs sm:text-sm text-cyan-300/70">
+                      {hasLoaded ? '掃描 QR code 後，光點會飛入圖表' : '資料同步後，光點會從外側進場'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
