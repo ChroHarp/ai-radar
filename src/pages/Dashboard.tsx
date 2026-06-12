@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useState } from 'react'
+import { type CSSProperties, useEffect, useMemo, useState } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -23,6 +23,22 @@ interface PlotPoint {
   x: number
   y: number
   id: string
+  usageLevel: number
+  evaluationLevel: number
+}
+
+interface ClusterStats {
+  count: number
+  levelTotal: number
+}
+
+interface TooltipPayloadItem {
+  payload?: PlotPoint
+}
+
+interface ChartTooltipProps {
+  active?: boolean
+  payload?: TooltipPayloadItem[]
 }
 
 const X_LABELS: Record<number, string> = { 
@@ -60,6 +76,16 @@ function getStableJitter(id: string) {
     jx: (stableUnit(id, 'x') - 0.5) * 0.32,
     jy: (stableUnit(id, 'y') - 0.5) * 0.32,
   }
+}
+
+function clusterKey(usageLevel: number, evaluationLevel: number) {
+  return `${usageLevel}-${evaluationLevel}`
+}
+
+function formatPercent(count: number, total: number) {
+  if (total <= 0) return '0%'
+  const percent = (count / total) * 100
+  return percent >= 10 ? `${percent.toFixed(0)}%` : `${percent.toFixed(1)}%`
 }
 
 // Custom dot with one-time fly-in effect when the point appears.
@@ -101,6 +127,24 @@ export default function Dashboard() {
 
   const voteUrl = `${window.location.origin}/vote`
 
+  const clusterStats = useMemo(() => {
+    const clusters: Record<string, number> = {}
+    const levelTotals: Record<number, number> = {}
+
+    points.forEach((point) => {
+      const key = clusterKey(point.usageLevel, point.evaluationLevel)
+      clusters[key] = (clusters[key] ?? 0) + 1
+      levelTotals[point.usageLevel] = (levelTotals[point.usageLevel] ?? 0) + 1
+    })
+
+    return Object.fromEntries(
+      Object.entries(clusters).map(([key, count]) => {
+        const usageLevel = Number(key.split('-')[0])
+        return [key, { count, levelTotal: levelTotals[usageLevel] ?? 0 }]
+      })
+    ) as Record<string, ClusterStats>
+  }, [points])
+
   useEffect(() => {
     const updateLayout = () => setIsCompact(window.innerWidth < 640)
     updateLayout()
@@ -121,6 +165,8 @@ export default function Dashboard() {
             id,
             x: data.usage_level + jx,
             y: data.evaluation_level + jy,
+            usageLevel: data.usage_level,
+            evaluationLevel: data.evaluation_level,
           })
         })
         setPoints(newPoints)
@@ -133,6 +179,37 @@ export default function Dashboard() {
     )
     return () => unsub()
   }, [])
+
+  function renderTooltip({ active, payload }: ChartTooltipProps) {
+    const point = payload?.[0]?.payload
+    if (!active || !point) return null
+
+    const key = clusterKey(point.usageLevel, point.evaluationLevel)
+    const stats = clusterStats[key] ?? { count: 0, levelTotal: 0 }
+    const percent = formatPercent(stats.count, stats.levelTotal)
+    const usageLabel = X_LABELS[point.usageLevel] ?? `L${point.usageLevel}`
+    const evaluationLabel = Y_LABELS[point.evaluationLevel] ?? `S${point.evaluationLevel}`
+
+    return (
+      <div className="rounded-lg border border-cyan-700/80 bg-gray-950/95 px-4 py-3 text-left shadow-[0_0_24px_rgba(34,211,238,0.28)]">
+        <p className="text-sm font-bold text-cyan-100">{usageLabel}</p>
+        <p className="mt-1 text-xs text-cyan-300/80">{evaluationLabel}</p>
+        <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-[11px] tracking-wider text-gray-500">同群光點</p>
+            <p className="text-xl font-bold text-cyan-200">{stats.count}</p>
+          </div>
+          <div>
+            <p className="text-[11px] tracking-wider text-gray-500">佔 {usageLabel.split(' ')[0]}</p>
+            <p className="text-xl font-bold text-cyan-200">{percent}</p>
+          </div>
+        </div>
+        <p className="mt-2 text-[11px] text-gray-500">
+          {stats.count} / {stats.levelTotal} 位於此使用 Level
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-dvh bg-gray-950 text-cyan-400 flex flex-col px-3 py-4 sm:p-6 gap-4 sm:gap-6 font-mono overflow-x-hidden">
@@ -200,7 +277,7 @@ export default function Dashboard() {
               </YAxis>
               <Tooltip
                 cursor={{ stroke: 'rgba(34,211,238,0.3)' }}
-                content={() => null}
+                content={renderTooltip}
               />
               <Scatter
                 data={points}
