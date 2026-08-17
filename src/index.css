@@ -1,30 +1,53 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #1e293b;
+    background: #eef4ff;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     margin: 0;
     padding: 0;
+    min-width: 320px;
+    background: #eef4ff;
   }
+
   #root {
     width: 100%;
     min-height: 100dvh;
   }
 }
 
+@layer components {
+  .radar-shell {
+    background-color: #eef4ff;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(125, 211, 252, 0.42), transparent 34%),
+      radial-gradient(circle at 88% 12%, rgba(199, 210, 254, 0.58), transparent 30%),
+      radial-gradient(circle at 60% 92%, rgba(167, 243, 208, 0.28), transparent 34%);
+  }
+
+  .glass-panel {
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.62);
+    box-shadow: 0 6px 8px rgba(51, 65, 85, 0.1);
+    backdrop-filter: blur(18px) saturate(1.08);
+  }
+}
+
 @layer utilities {
-  .glow-cyan {
-    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.7));
-  }
-  .glow-dot {
-    filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.9));
-  }
   .radar-dot-enter {
-    animation: radar-dot-fly-in var(--dot-duration, 1.2s) cubic-bezier(0.16, 1, 0.3, 1) var(--dot-delay, 0s) both;
+    animation: radar-dot-fly-in var(--dot-duration, 0.9s) cubic-bezier(0.16, 1, 0.3, 1) var(--dot-delay, 0s) both;
     transform-box: fill-box;
     transform-origin: center;
   }
+
   .radar-dot-halo {
-    animation: radar-dot-flare var(--dot-duration, 1.2s) ease-out var(--dot-delay, 0s) both;
+    animation: radar-dot-flare var(--dot-duration, 0.9s) ease-out var(--dot-delay, 0s) both;
   }
 }
 
@@ -35,7 +58,7 @@
   }
   70% {
     opacity: 1;
-    transform: translate(0, 0) scale(1.18);
+    transform: translate(0, 0) scale(1.08);
   }
   100% {
     opacity: 1;
@@ -49,11 +72,19 @@
     r: 7;
   }
   55% {
-    opacity: 0.95;
-    r: 26;
+    opacity: 0.75;
+    r: 21;
   }
   100% {
-    opacity: 0.42;
-    r: 16;
+    opacity: 0.35;
+    r: 14;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-dot-enter,
+  .radar-dot-halo {
+    animation-duration: 0.01ms;
+    animation-delay: 0ms;
   }
 }
